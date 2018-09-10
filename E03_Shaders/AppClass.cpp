@@ -79,11 +79,10 @@ void AppClass::InitVariables(void)
 	//vertex 2
 	lVertex.push_back(glm::vec3(1.0f, -1.0f, 0.0f)); //position
 	lVertex.push_back(glm::vec3(0.0f, 1.0f, 0.0f)); //color
-
 	//vertex 3
 	lVertex.push_back(glm::vec3(0.0f, 1.0f, 0.0f)); //position
 	lVertex.push_back(glm::vec3(0.0f, 0.0f, 1.0f)); //color
-
+	
 	glGenVertexArrays(1, &m_uVAO);//Generate vertex array object
 	glGenBuffers(1, &m_uVBO);//Generate Vertex Buffered Object
 
