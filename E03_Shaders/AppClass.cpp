@@ -68,6 +68,7 @@ void AppClass::InitOpenGL(void)
 void AppClass::InitShaders(void)
 {
 	m_uShaderProgramID = LoadShaders("Shaders//BasicColor.vs", "Shaders//BasicColor.fs");
+	compShaderID = LoadShaders("Shaders//ComplimentaryColor.vs", "Shaders//ComplimentaryColor.fs");
 	glUseProgram(m_uShaderProgramID);
 }
 void AppClass::InitVariables(void)
@@ -115,6 +116,8 @@ void AppClass::ProcessKeyboard(sf::Event a_event)
 		m_v3Color = glm::vec3(0.0f, 0.0f, 1.0f);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0))
 		m_v3Color = glm::vec3(-1.0f, -1.0f, -1.0f);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num4)) // toggle complimentary shader
+		complimentary = !complimentary;
 }
 void AppClass::Display(void)
 {
@@ -122,7 +125,26 @@ void AppClass::Display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//read uniforms and send values
-	GLuint SolidColor = glGetUniformLocation(m_uShaderProgramID, "SolidColor");
+	GLuint SolidColor;
+	if (!complimentary)
+	{
+		if (usingCompShader)
+		{
+			glUseProgram(m_uShaderProgramID);
+			usingCompShader = false;
+		}
+		SolidColor = glGetUniformLocation(m_uShaderProgramID, "SolidColor");
+	}
+	else
+	{
+		if (!usingCompShader)
+		{
+			glUseProgram(compShaderID);
+			usingCompShader = true;
+		}
+		SolidColor = glGetUniformLocation(compShaderID, "SolidColor");
+	}
+
 	glUniform3f(SolidColor, m_v3Color.r, m_v3Color.g, m_v3Color.b);
 
 	//draw content
