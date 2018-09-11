@@ -3,12 +3,12 @@
 in vec3 Color;
 
 uniform vec3 SolidColor = vec3(-1,-1,-1);
+vec3 OnesVector = vec3(1, 1, 1);
 
 out vec4 Fragment;
 
 void main()
 {
-	vec3 OnesVector = vec3(1, 1, 1);
 	vec3 Compliment = OnesVector - Color;
 	Fragment = vec4(Compliment,1);
 	

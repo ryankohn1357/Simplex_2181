@@ -68,7 +68,7 @@ void AppClass::InitOpenGL(void)
 void AppClass::InitShaders(void)
 {
 	m_uShaderProgramID = LoadShaders("Shaders//BasicColor.vs", "Shaders//BasicColor.fs");
-	compShaderID = LoadShaders("Shaders//ComplimentaryColor.vs", "Shaders//ComplimentaryColor.fs");
+	compShaderID = LoadShaders("Shaders//BasicColor.vs", "Shaders//ComplimentaryColor.fs");
 	glUseProgram(m_uShaderProgramID);
 }
 void AppClass::InitVariables(void)
@@ -126,8 +126,11 @@ void AppClass::Display(void)
 
 	//read uniforms and send values
 	GLuint SolidColor;
+
+	// switch between complimentary and normal shaders based on if user has pressed 4 key
 	if (!complimentary)
 	{
+		// make sure we're using the correct program
 		if (usingCompShader)
 		{
 			glUseProgram(m_uShaderProgramID);
@@ -137,6 +140,7 @@ void AppClass::Display(void)
 	}
 	else
 	{
+		// make sure we're using the correct program
 		if (!usingCompShader)
 		{
 			glUseProgram(compShaderID);
@@ -156,6 +160,7 @@ void AppClass::Display(void)
 void AppClass::Release()
 {
 	glDeleteShader(m_uShaderProgramID);
+	glDeleteShader(compShaderID);
 	glDeleteBuffers(1, &m_uVBO);
 	glBindVertexArray(0); // Unbind VAO
 	glDeleteVertexArrays(1, &m_uVAO);
