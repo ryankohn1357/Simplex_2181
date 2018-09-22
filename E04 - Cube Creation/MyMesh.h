@@ -6,6 +6,7 @@ Date: 2017/05
 #define __MYMESH_H_
 
 #include "Definitions.h"
+#include <math.h>
 
 class MyMesh
 {
