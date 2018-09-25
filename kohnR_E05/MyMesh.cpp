@@ -8,6 +8,8 @@ void MyMesh::Init(void)
 	m_VBO = 0;
 
 	m_pShaderMngr = ShaderManager::GetInstance();
+
+	position = vector3(0.0f, 0.0f, 0.0f);
 }
 void MyMesh::Release(void)
 {
@@ -153,7 +155,7 @@ void MyMesh::AddTri(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTo
 {
 	//C
 	//| \
-		//A--B
+			//A--B
 //This will make the triangle A->B->C 
 	AddVertexPosition(a_vBottomLeft);
 	AddVertexPosition(a_vBottomRight);
@@ -413,4 +415,14 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	// Adding information about color
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
+}
+
+void MyMesh::SetPosition(float x, float y, float z)
+{
+	position = vector3(x, y, z);
+}
+
+vector3 MyMesh::GetPosition()
+{
+	return position;
 }

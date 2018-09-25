@@ -11,11 +11,14 @@ Date: 2017/05
 #include "imgui\ImGuiObject.h"
 
 #include "MyMesh.h"
+#include <iostream>
 
 class Application
 {
 	MyMesh* m_pMesh = nullptr;
 	MyMesh* m_pMesh1 = nullptr;
+	std::vector<MyMesh*> cubes;
+
 
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
 private:

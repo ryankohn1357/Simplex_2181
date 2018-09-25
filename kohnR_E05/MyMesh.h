@@ -13,6 +13,7 @@ class MyMesh
 	uint m_uVertexCount = 0;	//Number of vertices in this MyMesh
 	GLuint m_VAO = 0;			//OpenGL Vertex Array Object
 	GLuint m_VBO = 0;			//OpenGL Vertex Array Object
+	vector3 position;
 
 	std::vector<vector3> m_lVertex;		//Composed vertex array
 	std::vector<vector3> m_lVertexPos;	//List of Vertices
@@ -198,6 +199,10 @@ public:
 	*/
 	void GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color = C_WHITE);
 #pragma endregion
+
+	// mutator and accessor
+	void SetPosition(float x, float y, float z);
+	vector3 GetPosition();
 };
 
 #endif //__MYMESH_H_
