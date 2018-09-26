@@ -277,15 +277,13 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Release();
 	Init();
 
-	// GenerateCube(a_fRadius * 2.0f, a_v3Color);
-
 	// calculate the angle per subdivision
 	float anglePerSubdivision = 360.0f / a_nSubdivisions;
 	std::vector<vector3> edgePoints;
 	vector3 center(0, 0, 0);
 	vector3 top = vector3(0, 0, -1 * a_fHeight);
 
-	// at each subdivision angle, calculate the x and y coordinates of the vertex using sin and cos and create vector3 in edgePoints
+	// for the base, at each subdivision angle, calculate the x and y coordinates of the vertices using sin and cos
 	for (float i = 0.0f; i <= 360.0f; i += anglePerSubdivision)
 	{
 		float radians = (i * PI) / 180;
@@ -299,8 +297,6 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 		AddTri(edgePoints[i + 1], edgePoints[i], center);
 		AddTri(edgePoints[i], edgePoints[i + 1], top);
 	}
-
-	// -------------------------------
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -322,8 +318,6 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Release();
 	Init();
 
-	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
-
 	// calculate the angle per subdivision
 	float anglePerSubdivision = 360.0f / a_nSubdivisions;
 	std::vector<vector3> bottomEdgePoints;
@@ -332,7 +326,7 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	vector3 bottomCenter(0.0f, 0.0f, 0.0f);
 	vector3 topCenter = vector3(0.0f, 0.0f, -1 * a_fHeight);
 
-	// at each subdivision angle, calculate the x and y coordinates of the vertex using sin and cos and create vector3 in edgePoints
+	// for the top and bottom circles, at each subdivision angle, calculate the x and y coordinates of the vertices using sin and cos
 	for (float i = 0.0f; i <= 360.0f; i += anglePerSubdivision)
 	{
 		float radians = (i * PI) / 180;
@@ -345,9 +339,9 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	// create all the tris and quads
 	for (int i = 0; i < bottomEdgePoints.size() - 1; i++)
 	{
-		AddTri(bottomEdgePoints[i], bottomCenter, bottomEdgePoints[i + 1]);
-		AddQuad(bottomEdgePoints[i], bottomEdgePoints[i + 1], topEdgePoints[i], topEdgePoints[i + 1]);
-		AddTri(topEdgePoints[i], topEdgePoints[i + 1], topCenter);
+		AddTri(bottomEdgePoints[i], bottomCenter, bottomEdgePoints[i + 1]); // bottom circle
+		AddQuad(bottomEdgePoints[i], bottomEdgePoints[i + 1], topEdgePoints[i], topEdgePoints[i + 1]); // connector
+		AddTri(topEdgePoints[i], topEdgePoints[i + 1], topCenter); // top circle
 	}
 
 	// -------------------------------
@@ -378,9 +372,6 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Release();
 	Init();
 
-	// Replace this with your code
-	//GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
-
 	// calculate the angle per subdivision
 	float anglePerSubdivision = 360.0f / a_nSubdivisions;
 	std::vector<vector3> bOEdgePoints; // bottom outer circle
@@ -388,10 +379,7 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	std::vector<vector3> bIEdgePoints; // bottom inner circle
 	std::vector<vector3> tIEdgePoints; // top inner circle
 
-	//vector3 bottomCenter(0.0f, 0.0f, 0.0f);
-	//vector3 topCenter = vector3(0.0f, 0.0f, -1 * a_fHeight);
-
-	// at each subdivision angle, calculate the x and y coordinates of the vertex using sin and cos and create vector3 in edgePoints
+	// for each circle, at each subdivision angle, calculate the x and y coordinates of the vertices using sin and cos
 	for (float i = 0.0f; i <= 360.0f; i += anglePerSubdivision)
 	{
 		float radians = (i * PI) / 180;
@@ -406,7 +394,7 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 		tIEdgePoints.push_back(tIEdgePoint);
 	}
 
-	// create all the tris and quads
+	// create quads using the vertices
 	for (int i = 0; i < bOEdgePoints.size() - 1; i++)
 	{
 		AddQuad(bIEdgePoints[i], bIEdgePoints[i + 1], tIEdgePoints[i], tIEdgePoints[i + 1]); // inside connector
@@ -470,15 +458,19 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Release();
 	Init();
 
-	// Replace this with your code
-	// GenerateCube(a_fRadius * 2.0f, a_v3Color);
 
-	float quadLength = (2.0f * a_fRadius) / (a_nSubdivisions + 1);
+	/* **********
+	Create a subdivided cube
+	*************/
+
+	float quadLength = (2.0f * a_fRadius) / (a_nSubdivisions + 1); // how big each of the faces on a side of the cube are
 	std::vector<vector3> vertices;
 
 	// front side
-	vector3 startVertex = vector3(-1 * a_fRadius, -1 * a_fRadius, a_fRadius);
+	vector3 startVertex = vector3(-1 * a_fRadius, -1 * a_fRadius, a_fRadius); // start at the bottom left corner of the side
 
+	// going row by row, calculate the position of each vertex and add it to vertices
+	// vertices on each face are added in the order bottom left -> bottom right -> top left -> top right
 	for (int i = 0; i <= a_nSubdivisions; i++)
 	{
 		for (int j = 0; j <= a_nSubdivisions; j++)
@@ -493,7 +485,7 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 			vertices.push_back(topRight);
 		}
 	}
-
+	
 	// top side
 	startVertex = vector3(a_fRadius, a_fRadius, a_fRadius);
 
@@ -501,17 +493,17 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	{
 		for (int j = 0; j <= a_nSubdivisions; j++)
 		{
-			vector3 bottomLeft = vector3(startVertex.x - j * quadLength, startVertex.y, startVertex.z + i * quadLength);
-			vector3 bottomRight = vector3(startVertex.x - (j + 1) * quadLength, startVertex.y, startVertex.z + (i + 1) * quadLength);
-			vector3 topLeft = vector3(startVertex.x - j * quadLength, startVertex.y, startVertex.z + i * quadLength);
-			vector3 topRight = vector3(startVertex.x - (j + 1) * quadLength, startVertex.y, startVertex.z + (i + 1) * quadLength);
+			vector3 bottomLeft = vector3(startVertex.x - j * quadLength, startVertex.y, startVertex.z - i * quadLength);
+			vector3 bottomRight = vector3(startVertex.x - j * quadLength, startVertex.y, startVertex.z - (i + 1) * quadLength);
+			vector3 topLeft = vector3(startVertex.x - (j + 1) * quadLength, startVertex.y, startVertex.z - i * quadLength);
+			vector3 topRight = vector3(startVertex.x - (j + 1) * quadLength, startVertex.y, startVertex.z - (i + 1) * quadLength);
 			vertices.push_back(bottomLeft);
 			vertices.push_back(bottomRight);
 			vertices.push_back(topLeft);
 			vertices.push_back(topRight);
 		}
 	}
-
+	
 	// back side
 	startVertex = vector3(a_fRadius, -1 * a_fRadius, -1 * a_fRadius);
 
@@ -547,25 +539,25 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 			vertices.push_back(topRight);
 		}
 	}
-
+	
 	// bottom side
-	startVertex = vector3(-1 * a_fRadius, -1 * a_fRadius, -1 * a_fRadius);
+	startVertex = vector3(-1 * a_fRadius, -1 * a_fRadius, a_fRadius);
 
 	for (int i = 0; i <= a_nSubdivisions; i++)
 	{
 		for (int j = 0; j <= a_nSubdivisions; j++)
 		{
-			vector3 bottomLeft = vector3(startVertex.x + j * quadLength, startVertex.y, startVertex.z + i * quadLength);
-			vector3 bottomRight = vector3(startVertex.x + (j + 1) * quadLength, startVertex.y, startVertex.z + (i + 1) * quadLength);
-			vector3 topLeft = vector3(startVertex.x + j * quadLength, startVertex.y, startVertex.z + i * quadLength);
-			vector3 topRight = vector3(startVertex.x + (j + 1) * quadLength, startVertex.y, startVertex.z + (i + 1) * quadLength);
+			vector3 bottomLeft = vector3(startVertex.x + j * quadLength, startVertex.y, startVertex.z - i * quadLength);
+			vector3 bottomRight = vector3(startVertex.x + j * quadLength, startVertex.y, startVertex.z - (i + 1) * quadLength);
+			vector3 topLeft = vector3(startVertex.x + (j + 1) * quadLength, startVertex.y, startVertex.z - i * quadLength);
+			vector3 topRight = vector3(startVertex.x + (j + 1) * quadLength, startVertex.y, startVertex.z - (i + 1) * quadLength);
 			vertices.push_back(bottomLeft);
 			vertices.push_back(bottomRight);
 			vertices.push_back(topLeft);
 			vertices.push_back(topRight);
 		}
 	}
-
+	
 	// right side
 	startVertex = vector3(a_fRadius, -1 * a_fRadius, a_fRadius);
 
@@ -584,17 +576,19 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 		}
 	}
 	
+	// position each vertex so they are radius units away from the center of the sphere
 	for (int i = 0; i < vertices.size(); i++)
 	{
 		vertices[i] = normalize(vertices[i]) * a_fRadius;
 	}
 	
+	// add all the vertices in groups of four as quads
 	for (int i = 0; i <= vertices.size() - 4; i += 4)
 	{
 		AddQuad(vertices[i], vertices[i + 1], vertices[i + 2], vertices[i + 3]);
 	}
 
-
+	
 	// -------------------------------
 
 	// Adding information about color
