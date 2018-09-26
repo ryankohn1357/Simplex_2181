@@ -106,6 +106,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E11 - EntityManager", "E11 - EntityManager\E11 - EntityManager.vcxproj", "{870B329D-6DED-48D2-8E86-0893E3BB8DAB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "A02 - 3D Primitives", "A02 - 3D Primitives\A02 - 3D Primitives.vcxproj", "{7EDBEED8-75ED-48EE-9F13-5D4A895E8F1B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E745E25C-0143-42AC-A486-1395A4C972AE} = {E745E25C-0143-42AC-A486-1395A4C972AE}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "A03 - LERP", "A03 - LERP\A03 - LERP.vcxproj", "{63E8C63D-1CCD-43F2-9E0F-1510677DE856}"
 EndProject
