@@ -1,4 +1,5 @@
 #include "AppClass.h"
+#include <iostream>
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
@@ -52,18 +53,44 @@ void Application::Display(void)
 	fTimer += m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
 
 	//calculate the current position
-	vector3 v3CurrentPos;
-	
+	static vector3 v3CurrentPos = m_stopsList[0];
+	static int currentStop = 0;
+	static float progress = 0.0f;
+	const float SPEED = 0.01f;
+	vector3 start;
+	vector3 target;
 
+	start = m_stopsList[currentStop]; // set the stop to start at
+	// if we have reached the end of the stops list, the target is the first stop, otherwise, it's the next stop in the list
+	if (currentStop < m_stopsList.size() - 1)
+	{
+		target = m_stopsList[currentStop + 1];
+	}
+	else
+	{
+		target = m_stopsList[0];
+	}
 
+	// calculate the position to move to
+	v3CurrentPos = glm::lerp(start, target, progress);
 
+	// increment progress
+	progress += SPEED;
 
-	//your code goes here
-	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
-	//-------------------
-	
+	// if we reach the next stop, reset progress and increment the current stop
+	if (progress >= 1.0f)
+	{
+		progress = 0;
+		if (currentStop < m_stopsList.size() - 1)
+		{
+			currentStop++;
+		}
+		else // if we have reached the end of the stops list, loop back to the beginning
+		{
 
-
+			currentStop = 0;
+		}
+	}
 	
 	matrix4 m4Model = glm::translate(v3CurrentPos);
 	m_pModel->SetModelMatrix(m4Model);
