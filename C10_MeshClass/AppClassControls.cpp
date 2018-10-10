@@ -388,6 +388,15 @@ void Application::ProcessKeyboard(void)
 	This is used for things that are continuously happening,
 	for discreet on/off use ProcessKeyboardPressed/Released
 	*/
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
+		m_v3Angles.x += 1.0f;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
+		m_v3Angles.y += 1.0f;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+		m_v3Angles.z += 1.0f;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+		m_v3Angles = vector3(0.0f);
+
 #pragma region Camera Position
 	float fSpeed = 1.0f;
 	float fMultiplier = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||

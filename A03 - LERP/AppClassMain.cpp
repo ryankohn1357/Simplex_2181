@@ -26,6 +26,29 @@ sf::Image LoadImageFromResource(const std::string& name)
 Application::Application() {}
 Application::Application(Application const& input) {}
 Application& Application::operator=(Application const& input) { return *this; }
+
+// helper method that returns a list of stop points for a given shape
+std::vector<vector3> Application::CalcStopList(float radius, int points)
+{
+	// minimum of three points
+	if (points < 3)
+	{
+		points = 3;
+	}
+
+	std::vector<vector3> stopList;
+	float angle = 0.0f;
+	float angleIncrement = (2.0f * PI) / points;
+	for (int i = 0; i < points; i++)
+	{
+		vector3 point = vector3(cos(angle), sin(angle), 0.0f) * radius;
+		stopList.push_back(point);
+		angle += angleIncrement;
+	}
+
+	return stopList;
+}
+
 Application::~Application(void) 
 {
 	Release();

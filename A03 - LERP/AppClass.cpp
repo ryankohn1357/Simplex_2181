@@ -23,6 +23,7 @@ void Application::InitVariables(void)
 		m_uOrbits = 7;
 
 	float fSize = 1.0f; //initial size of orbits
+	float radius = 0.95f; // initial distance from center to spheres
 
 	//creating a color using the spectrum 
 	uint uColor = 650; //650 is Red
@@ -36,6 +37,11 @@ void Application::InitVariables(void)
 	{
 		vector3 v3Color = WaveLengthToRGB(uColor); //calculate color based on wavelength
 		m_shapeList.push_back(m_pMeshMngr->GenerateTorus(fSize, fSize - 0.1f, 3, i, v3Color)); //generate a custom torus and add it to the meshmanager
+		std::vector<vector3> stopList = CalcStopList(radius, i); // calculate the stops in the shape
+		listOfStopLists.push_back(stopList);
+		orbitPositions.push_back(0); // add an entry to progress and positions list for each shape
+		orbitProgresses.push_back(0.0f);
+		radius += 0.5f; // increment the radius for the next orbit
 		fSize += 0.5f; //increment the size for the next orbit
 		uColor -= static_cast<uint>(decrements); //decrease the wavelength
 	}
@@ -62,19 +68,44 @@ void Application::Display(void)
 	/*
 		The following offset will orient the orbits as in the demo, start without it to make your life easier.
 	*/
-	//m4Offset = glm::rotate(IDENTITY_M4, 1.5708f, AXIS_Z);
+	m4Offset = glm::rotate(IDENTITY_M4, 1.5708f, AXIS_Z);
+
+	static float speed = 0.01f;
 
 	// draw a shapes
 	for (uint i = 0; i < m_uOrbits; ++i)
 	{
 		m_pMeshMngr->AddMeshToRenderList(m_shapeList[i], glm::rotate(m4Offset, 1.5708f, AXIS_X));
 
+		// find the current and next stops in the shape
+		int currentPos = orbitPositions[i];
+		int nextPos;
+		if (currentPos < listOfStopLists[i].size() - 1) // if we reach the end of the list, loop to the beginning
+		{
+			nextPos = currentPos + 1;
+		}
+		else
+		{
+			nextPos = 0;
+		}
+
 		//calculate the current position
-		vector3 v3CurrentPos = ZERO_V3;
+		vector3 v3CurrentPos = glm::lerp(listOfStopLists[i][currentPos], listOfStopLists[i][nextPos], orbitProgresses[i]);
 		matrix4 m4Model = glm::translate(m4Offset, v3CurrentPos);
 
 		//draw spheres
 		m_pMeshMngr->AddSphereToRenderList(m4Model * glm::scale(vector3(0.1)), C_WHITE);
+
+		// increment progress
+		if (orbitProgresses[i] >= 1.0f)
+		{
+			orbitPositions[i] = nextPos;
+			orbitProgresses[i] = 0.0f;
+		}
+		else
+		{
+			orbitProgresses[i] += speed;
+		}
 	}
 
 	//render list call
