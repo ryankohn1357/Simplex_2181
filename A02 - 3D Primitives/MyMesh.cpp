@@ -339,9 +339,9 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	// create all the tris and quads
 	for (int i = 0; i < bottomEdgePoints.size() - 1; i++)
 	{
-		AddTri(bottomEdgePoints[i], bottomCenter, bottomEdgePoints[i + 1]); // bottom circle
-		AddQuad(bottomEdgePoints[i], bottomEdgePoints[i + 1], topEdgePoints[i], topEdgePoints[i + 1]); // connector
-		AddTri(topEdgePoints[i], topEdgePoints[i + 1], topCenter); // top circle
+		AddTri(topEdgePoints[i], topCenter, topEdgePoints[i + 1]); // top circle
+		AddQuad(bottomEdgePoints[i + 1], bottomEdgePoints[i], topEdgePoints[i + 1], topEdgePoints[i]); // connector
+		AddTri(bottomEdgePoints[i], bottomEdgePoints[i + 1], bottomCenter); // bottom circle
 	}
 
 	// -------------------------------
