@@ -152,11 +152,28 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 
 void MyCamera::MoveForward(float a_fDistance)
 {
-	//The following is just an example and does not take in account the forward vector (AKA view vector)
-	m_v3Position += vector3(0.0f, 0.0f,-a_fDistance);
-	m_v3Target += vector3(0.0f, 0.0f, -a_fDistance);
-	m_v3Above += vector3(0.0f, 0.0f, -a_fDistance);
+	vector3 forward = m_v3Target - m_v3Position;
+	vector3 translation = glm::normalize(forward) * a_fDistance;
+
+	m_v3Position += translation;
+	m_v3Target += translation;
+	m_v3Above += translation;
 }
 
-void MyCamera::MoveVertical(float a_fDistance){}//Needs to be defined
-void MyCamera::MoveSideways(float a_fDistance){}//Needs to be defined
+void MyCamera::MoveVertical(float a_fDistance)
+{
+}
+
+void MyCamera::MoveSideways(float a_fDistance)
+{
+	vector3 forward = m_v3Target - m_v3Position;
+	vector3 up = m_v3Above - m_v3Position;
+	vector3 side = glm::cross(forward, up);
+	side = glm::normalize(side) * a_fDistance * -1;
+
+	//std::cout << "Side: (" << side.x << ", " << side.y << ", " << side.z << ")" << std::endl;
+
+	m_v3Position += side;
+	m_v3Target += side;
+	m_v3Above += side;
+}
