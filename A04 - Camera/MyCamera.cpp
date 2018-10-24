@@ -104,6 +104,11 @@ void Simplex::MyCamera::ResetCamera(void)
 	m_v3Target = vector3(0.0f, 0.0f, 0.0f); //What I'm looking at
 	m_v3Above = vector3(0.0f, 1.0f, 0.0f); //What is above the camera
 
+	forward = m_v3Target - m_v3Position;
+	up = m_v3Above - m_v3Position;
+	side = glm::cross(forward, up);
+
+
 	m_bPerspective = true; //perspective view? False is Orthographic
 
 	m_fFOV = 45.0f; //Field of View
@@ -131,6 +136,11 @@ void Simplex::MyCamera::SetPositionTargetAndUpward(vector3 a_v3Position, vector3
 
 void Simplex::MyCamera::CalculateViewMatrix(void)
 {
+	// update the forward, up, side vectors for camera rotation/movement
+	forward = m_v3Target - m_v3Position;
+	up = m_v3Above - m_v3Position;
+	side = glm::cross(forward, up);
+
 	//Calculate the look at most of your assignment will be reflected in this method
 	m_m4View = glm::lookAt(m_v3Position, m_v3Target, glm::normalize(m_v3Above - m_v3Position)); //position, target, upward
 }
@@ -152,9 +162,10 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 
 void MyCamera::MoveForward(float a_fDistance)
 {
-	vector3 forward = m_v3Target - m_v3Position;
-	vector3 translation = glm::normalize(forward) * a_fDistance;
+	// calculate the amount to move along the forward vector
+	vector3 translation = glm::normalize(forward) * a_fDistance; 
 
+	// increment position, target, above vectors that amount
 	m_v3Position += translation;
 	m_v3Target += translation;
 	m_v3Above += translation;
@@ -162,18 +173,38 @@ void MyCamera::MoveForward(float a_fDistance)
 
 void MyCamera::MoveVertical(float a_fDistance)
 {
+	// calculate the amount to move along the up vector
+	vector3 translation = glm::normalize(up) * a_fDistance;
+
+	// increment position, target, above vectors that amount
+	m_v3Position += translation;
+	m_v3Target += translation;
+	m_v3Above += translation;
 }
 
 void MyCamera::MoveSideways(float a_fDistance)
 {
-	vector3 forward = m_v3Target - m_v3Position;
-	vector3 up = m_v3Above - m_v3Position;
-	vector3 side = glm::cross(forward, up);
-	side = glm::normalize(side) * a_fDistance * -1;
+	// calculate the amount to move along the side vector
+	vector3 translation = glm::normalize(side) * a_fDistance * -1;
 
-	//std::cout << "Side: (" << side.x << ", " << side.y << ", " << side.z << ")" << std::endl;
+	// increment position, target, above vectors that amount
+	m_v3Position += translation;
+	m_v3Target += translation;
+	m_v3Above += translation;
+}
 
-	m_v3Position += side;
-	m_v3Target += side;
-	m_v3Above += side;
+void Simplex::MyCamera::ChangeYaw(float angle)
+{
+	quaternion myQuat = glm::angleAxis(glm::radians(angle), side); // rotate around the side vector
+	matrix4 rotationMatrix = ToMatrix4(myQuat); // convert to a matrix
+	forward = vector3(vector4(forward, 0) * rotationMatrix); // apply it to the forward vector
+	m_v3Target = m_v3Position + forward; // move the target so the camera faces forward
+}
+
+void Simplex::MyCamera::ChangePitch(float angle)
+{
+	quaternion myQuat = glm::angleAxis(glm::radians(angle), up); // rotate around the up vector
+	matrix4 rotationMatrix = ToMatrix4(myQuat); // convert to a matrix
+	forward = vector3(vector4(forward, 0) * rotationMatrix); // apply it to the forward vector
+	m_v3Target = m_v3Position + forward; // move the target so the camera faces forward
 }
