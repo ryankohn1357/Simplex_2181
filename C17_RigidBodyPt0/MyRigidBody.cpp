@@ -146,7 +146,7 @@ void MyRigidBody::AddToRenderList(void)
 		return;
 
 	//m_pMeshMngr->AddSphereToRenderList(m_m4ToWorld * glm::translate(m_v3Center)* glm::scale(vector3(5.0f)), m_v3Color, RENDER_SOLID);
-	m_pMeshMngr->AddWireSphereToRenderList(m_m4ToWorld * glm::translate(m_v3Center) * glm::scale(vector3(m_fRadius)), m_v3Color, RENDER_SOLID);
+	//m_pMeshMngr->AddWireSphereToRenderList(m_m4ToWorld * glm::translate(m_v3Center) * glm::scale(vector3(m_fRadius)), m_v3Color, RENDER_SOLID);
 
 	m_pMeshMngr->AddWireCubeToRenderList(m_m4ToWorld * glm::translate(m_v3Center) * glm::scale(m_v3HalfWidth * 2.0f), m_v3Color, RENDER_SOLID);
 
@@ -154,5 +154,26 @@ void MyRigidBody::AddToRenderList(void)
 bool MyRigidBody::IsColliding(MyRigidBody* const other)
 {
 	// need to get centers to global space
-	return (glm::distance(m_v3Center, other->m_v3Center) < m_fRadius + other->m_fRadius);
+	vector3 v3Center1 = m_m4ToWorld * vector4(m_v3Center, 1.0f);
+	vector3 v3Center2 = other->m_m4ToWorld * vector4(other->m_v3Center, 1.0f);
+
+	vector3 v3Max1 = m_m4ToWorld * m_qArcBall * vector4(m_v3MaxL, 1.0f);
+	vector3 v3Min1 = m_m4ToWorld * vector4(m_v3MinL, 1.0f);
+	vector3 v3Max2 = other->m_m4ToWorld * vector4(other->m_v3MaxL, 1.0f);
+	vector3 v3Min2 = other->m_m4ToWorld * vector4(other->m_v3MinL, 1.0f);
+
+
+
+	// return (glm::distance(v3Center1, v3Center2) < m_fRadius + other->m_fRadius));
+
+	bool bColliding = true;
+
+	if (v3Max1.x < v3Min2.x || v3Min1.x > v3Max2.x)
+		return false;
+	if (v3Max1.y < v3Min2.y || v3Min1.y > v3Max2.y)
+		return false;
+	if (v3Max1.z < v3Min2.z || v3Min1.z > v3Max2.z)
+		return false;
+
+	return bColliding;
 }
