@@ -225,6 +225,7 @@ public:
 	Output: ---
 	*/
 	void SetModelMatrix(matrix4 a_m4ModelMatrix);
+	std::vector<vector3> GetVertices(vector3 mins, vector3 maxes);
 #pragma endregion
 	
 private:
