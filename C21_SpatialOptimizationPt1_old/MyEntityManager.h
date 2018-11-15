@@ -13,12 +13,13 @@ namespace Simplex
 //System Class
 class MyEntityManager
 {
-	typedef MyEntity* PEntity; //MyEntity Pointer
+	typedef MyEntity* PEntity;
+
 	uint m_uEntityCount = 0; //number of elements in the list
-	PEntity* m_mEntityArray = nullptr; //array of MyEntity pointers
 	static MyEntityManager* m_pInstance; // Singleton pointer
+	std::vector<MyEntity*> m_EntityList; //entities list
+	PEntity* m_mEntityArray = nullptr; //array of Entity pointers
 public:
-	PEntity* GetEntityArray(void);
 	/*
 	Usage: Gets the singleton pointer
 	Arguments: ---
@@ -46,13 +47,13 @@ public:
 	*/
 	void AddEntity(String a_sFileName, String a_sUniqueID = "NA");
 	/*
-	USAGE: Deletes the MyEntity Specified by unique ID and removes it from the list
+	USAGE: Deletes the Entity Specified by unique ID and removes it from the list
 	ARGUMENTS: uint a_uIndex -> index of the queried entry, if < 0 asks for the last one added
 	OUTPUT: ---
 	*/
 	void RemoveEntity(uint a_uIndex);
 	/*
-	USAGE: Deletes the MyEntity Specified by unique ID and removes it from the list
+	USAGE: Deletes the Entity Specified by unique ID and removes it from the list
 	ARGUMENTS: String a_sUniqueID -> Unique Identifier
 	OUTPUT: ---
 	*/
@@ -70,7 +71,7 @@ public:
 	*/
 	MyEntity* GetEntity(uint a_uIndex = -1);
 	/*
-	USAGE: Will update the MyEntity manager
+	USAGE: Will update the Entity manager
 	ARGUMENTS: ---
 	OUTPUT: ---
 	*/
@@ -160,7 +161,7 @@ public:
 	*/
 	void AddEntityToRenderList(String a_sUniqueID, bool a_bRigidBody = false);
 	/*
-	USAGE: Will set a dimension to the MyEntity
+	USAGE: Will set a dimension to the Entity
 	ARGUMENTS:
 	-	uint a_uIndex -> index (from the list) of the entity queried if < 0 will use the last one
 	-	uint a_uDimension -> dimension to set
@@ -168,7 +169,7 @@ public:
 	*/
 	void AddDimension(uint a_uIndex, uint a_uDimension);
 	/*
-	USAGE: Will set a dimension to the MyEntity
+	USAGE: Will set a dimension to the Entity
 	ARGUMENTS:
 	-	String a_sUniqueID -> unique identifier of the entity queried
 	-	uint a_uDimension -> dimension to set
@@ -192,12 +193,6 @@ public:
 	*/
 	void RemoveDimension(String a_sUniqueID, uint a_uDimension);
 	/*
-	USAGE: will remove all dimensions from all entities
-	ARGUMENTS: ---
-	OUTPUT: ---
-	*/
-	void ClearDimensionSetAll(void);
-	/*
 	USAGE: will remove all dimensions from entity
 	ARGUMENTS: uint a_uIndex -> index (from the list) of the entity queried if < 0 will use the last one
 	OUTPUT: ---
@@ -210,7 +205,7 @@ public:
 	*/
 	void ClearDimensionSet(String a_sUniqueID);
 	/*
-	USAGE: Will ask if the MyEntity is located in a particular dimension
+	USAGE: Will ask if the Entity is located in a particular dimension
 	ARGUMENTS:
 	-	uint a_uIndex -> index (from the list) of the entity queried if < 0 will use the last one
 	-	uint a_uDimension -> dimension queried
@@ -218,7 +213,7 @@ public:
 	*/
 	bool IsInDimension(uint a_uIndex, uint a_uDimension);
 	/*
-	USAGE: Will ask if the MyEntity is located in a particular dimension
+	USAGE: Will ask if the Entity is located in a particular dimension
 	ARGUMENTS:
 	-	String a_sUniqueID -> unique identifier of the entity queried
 	-	uint a_uDimension -> dimension queried
@@ -229,7 +224,7 @@ public:
 	USAGE: Asks if this entity shares a dimension with the incoming one
 	ARGUMENTS:
 	-	uint a_uIndex -> index (from the list) of the entity queried if < 0 will use the last one
-	-	MyEntity* const a_pOther -> queried entity
+	-	Entity* const a_pOther -> queried entity
 	OUTPUT: shares at least one dimension?
 	*/
 	bool SharesDimension(uint a_uIndex, MyEntity* const a_pOther);
@@ -237,16 +232,10 @@ public:
 	USAGE: Asks if this entity shares a dimension with the incoming one
 	ARGUMENTS:
 	-	String a_sUniqueID -> unique identifier of the entity queried
-	-	MyEntity* const a_pOther -> queried entity
+	-	Entity* const a_pOther -> queried entity
 	OUTPUT: shares at least one dimension?
 	*/
 	bool SharesDimension(String a_sUniqueID, MyEntity* const a_pOther);
-	/*
-	USAGE: Will return the count of Entities in the system
-	ARGUMENTS: ---
-	OUTPUT: MyEntity count
-	*/
-	uint GetEntityCount(void);
 private:
 	/*
 	Usage: constructor

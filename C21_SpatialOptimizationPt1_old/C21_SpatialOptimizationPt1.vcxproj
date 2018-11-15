@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{44D2C07B-798D-461B-9019-DFB240593888}</ProjectGuid>
-    <RootNamespace>A06 - Octree</RootNamespace>
-    <ProjectName>A06 - Octree</ProjectName>
+    <ProjectGuid>{844D5FBC-A0E8-446D-AF24-7B6FAD8FD713}</ProjectGuid>
+    <RootNamespace>C21_SpatialOptimizationPt1</RootNamespace>
+    <ProjectName>C21_SpatialOptimizationPt1</ProjectName>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -109,7 +109,6 @@ xcopy "$(SolutionDir)include\Simplex\Shaders" "$(SolutionDir)_Binary\Shaders" /y
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MyEntity.cpp" />
     <ClCompile Include="MyEntityManager.cpp" />
-    <ClCompile Include="Octant2.cpp" />
     <ClCompile Include="MyRigidBody.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -124,7 +123,6 @@ xcopy "$(SolutionDir)include\Simplex\Shaders" "$(SolutionDir)_Binary\Shaders" /y
     <ClInclude Include="Main.h" />
     <ClInclude Include="MyEntity.h" />
     <ClInclude Include="MyEntityManager.h" />
-    <ClInclude Include="Octant2.h" />
     <ClInclude Include="MyRigidBody.h" />
   </ItemGroup>
   <ItemGroup>
