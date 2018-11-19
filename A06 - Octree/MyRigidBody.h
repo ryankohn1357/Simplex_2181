@@ -237,6 +237,8 @@ public:
 	OUTPUT: is it in the array?
 	*/
 	bool IsInCollidingArray(MyRigidBody* a_pEntry);
+
+	void MakeCubic(void);
 	
 private:
 	/*
@@ -257,6 +259,7 @@ private:
 	OUTPUT: 0 for colliding, all other first axis that succeeds test
 	*/
 	uint SAT(MyRigidBody* const a_pOther);
+
 };//class
 
 } //namespace Simplex

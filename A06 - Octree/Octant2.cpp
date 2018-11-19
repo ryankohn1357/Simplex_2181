@@ -4,30 +4,11 @@ using namespace Simplex;
 void Octant2::Init(void)
 {
 	m_nData = 0;
-	dimension = 1;
-	level = 1;
-	m_pMeshMngr = MeshManager::GetInstance();
-	m_pEntityMngr = MyEntityManager::GetInstance();
 
-	typedef MyEntity* PEntity; //MyEntity Pointer
-	PEntity* entity_Array = m_pEntityMngr->GetEntityArray();
-	
-	uint iEntityCount = m_pEntityMngr->GetEntityCount();
-	std::vector<vector3> v3MaxMin_list;
-	for (uint i = 0; i < iEntityCount; ++i)
-	{
-		MyRigidBody* pRG = entity_Array[i]->GetRigidBody();
-		vector3 v3Min = pRG->GetMinGlobal();
-		vector3 v3Max = pRG->GetMaxGlobal();
-		v3MaxMin_list.push_back(v3Min);
-		v3MaxMin_list.push_back(v3Max);
-	}
 	for (uint i = 0; i < 8; i++)
 	{
 		m_pChild[i] = nullptr;
 	}
-	m_pRigidBody = new MyRigidBody(v3MaxMin_list);
-	CalcTree();
 }
 void Octant2::Swap(Octant2& other)
 {
@@ -37,6 +18,11 @@ void Octant2::Swap(Octant2& other)
 void Octant2::Release(void)
 {
 	m_lData.clear();
+	SafeDelete(m_pRigidBody);
+	for (uint i = 0; i < 8; i++)
+	{
+		SafeDelete(m_pChild[i]);
+	}
 }
 void Simplex::Octant2::Display(void)
 {
@@ -52,66 +38,30 @@ void Simplex::Octant2::Display(void)
 
 void Octant2::Subdivide()
 {
-	if (m_pChild[0] != nullptr)
+	// calculate center and size of children octants (dividing the parent into eight suboctants)
+	vector3 v3Center = m_pRigidBody->GetCenterLocal();
+	vector3 v3HalfWidth = m_pRigidBody->GetHalfWidth();
+	float fSize = v3HalfWidth.x / 2.0f;
+	float fCenters = fSize;
+
+	// create children octants
+	m_pChild[0] = new Octant2(v3Center + vector3(fCenters, fCenters, fCenters), fSize);
+	m_pChild[1] = new Octant2(v3Center + vector3(-fCenters, fCenters, fCenters), fSize);
+	m_pChild[2] = new Octant2(v3Center + vector3(-fCenters, -fCenters, fCenters), fSize);
+	m_pChild[3] = new Octant2(v3Center + vector3(fCenters, -fCenters, fCenters), fSize);
+
+	m_pChild[4] = new Octant2(v3Center + vector3(fCenters, fCenters, -fCenters), fSize);
+	m_pChild[5] = new Octant2(v3Center + vector3(-fCenters, fCenters, -fCenters), fSize);
+	m_pChild[6] = new Octant2(v3Center + vector3(-fCenters, -fCenters, -fCenters), fSize);
+	m_pChild[7] = new Octant2(v3Center + vector3(fCenters, -fCenters, -fCenters), fSize);
+
+	for (int i = 0; i < 8; i++)
 	{
-		return;
-	}
-
-	vector3 min = m_pRigidBody->GetMinGlobal();
-	vector3 max = m_pRigidBody->GetMaxGlobal();
-	vector3 center = m_pRigidBody->GetCenterGlobal();
-
-	for (uint i = 0; i < 8; i++)
-	{
-		vector3 subMin;
-		vector3 subMax;
-		switch (i)
-		{
-		case 0: // front top left
-			subMin = vector3(min.x, center.y, min.z); 
-			subMax = vector3(center.x, max.y, center.z);
-			break;
-		case 1: // back top left
-			subMin = vector3(min.x, center.y, center.z);
-			subMax = vector3(center.x, max.y, max.z);
-			break;
-		case 2: // front bottom left
-			subMin = vector3(min.x, min.y, min.z);
-			subMax = vector3(center.x, center.y, center.z);
-			break;
-		case 3: // back bottom left
-			subMin = vector3(min.x, min.y, center.z);
-			subMax = vector3(center.x, center.y, max.z);
-			break;
-		case 4: // front top right
-			subMin = vector3(center.x, center.y, min.z);
-			subMax = vector3(max.x, max.y, center.z);
-			break;
-		case 5: // back top right
-			subMin = vector3(center.x, center.y, center.z);
-			subMax = vector3(max.x, max.y, max.z);
-			break;
-		case 6: // front bottom right
-			subMin = vector3(center.x, min.y, min.z);
-			subMax = vector3(max.x, center.y, center.z);
-			break;
-		case 7: // back bottom right
-			subMin = vector3(center.x, min.y, center.z);
-			subMax = vector3(max.x, center.y, max.z);
-			break;
-		default:
-			break;
-		}
-
-		std::vector<vector3> minMaxList;
-		minMaxList.push_back(subMin);
-		minMaxList.push_back(subMax);
-
-		int nextLevel = level++;
-		int newDimension = std::stoi((std::to_string(dimension) + std::to_string(i)));
-
-		m_pChild[i] = new Octant2(newDimension, nextLevel);
-		m_pChild[i]->m_pRigidBody = new MyRigidBody(minMaxList);
+		m_pChild[i]->level = level + 1;
+		m_pChild[i]->m_pParent = this;
+		m_pChild[i]->maxLevels = maxLevels;
+		long newDimension = std::stol((std::to_string(dimension) + std::to_string(i)));
+		m_pChild[i]->dimension = newDimension;
 	}
 }
 
@@ -122,17 +72,20 @@ void Octant2::CalcTree(void)
 	uint iEntityCount = m_pEntityMngr->GetEntityCount();
 	std::vector<MyEntity*> collidingEntities;
 
+	// find the entities that collide with the octant
 	for (int i = 0; i < iEntityCount; i++)
 	{
 		MyRigidBody* pRB = entity_Array[i]->GetRigidBody();
 		if (pRB->IsColliding(m_pRigidBody))
 		{
+			// add the octant's dimension to those entities
 			entity_Array[i]->AddDimension(dimension);
 			collidingEntities.push_back(entity_Array[i]);
 		}
 	}
 
-	if (collidingEntities.size() > 1 && level < 4)
+	// if subdivision is legal by given specification, subdivide and calculate new children octants
+	if (collidingEntities.size() > 1 && level < maxLevels)
 	{
 		Subdivide();
 		for (int i = 0; i < 8; i++)
@@ -146,17 +99,21 @@ void Octant2::CalcTree(std::vector<MyEntity*> colEntities)
 {
 	std::vector<MyEntity*> collidingEntities;
 
+	// find the entities that collide with the octant
 	for (int i = 0; i < colEntities.size(); i++)
 	{
 		MyRigidBody* pRB = colEntities[i]->GetRigidBody();
 		if (pRB->IsColliding(m_pRigidBody))
 		{
+			// add the octant's dimension to those entities
+			colEntities[i]->RemoveDimension(m_pParent->dimension);
 			colEntities[i]->AddDimension(dimension);
 			collidingEntities.push_back(colEntities[i]);
 		}
 	}
 
-	if (collidingEntities.size() > 1 && level < 4)
+	// if subdivision is legal by given specification, subdivide and calculate new children octants
+	if (collidingEntities.size() > 1 && level < maxLevels)
 	{
 		Subdivide();
 		for (int i = 0; i < 8; i++)
@@ -166,14 +123,52 @@ void Octant2::CalcTree(std::vector<MyEntity*> colEntities)
 	}
 }
 
-Octant2::Octant2(int dim, int lev)
+void Simplex::Octant2::SetMaxLevels(int ml)
 {
-	dimension = dim;
-	level = lev;
+	if (ml > 0 && ml < 7)
+	{
+		maxLevels = ml;
+	}
+}
+
+Octant2::Octant2(vector3 a_v3Center, float a_fSize)
+{
+	Init();
+	std::vector<vector3> v3MaxMin_list;
+	v3MaxMin_list.push_back(a_v3Center - vector3(a_fSize));
+	v3MaxMin_list.push_back(vector3(a_fSize) + a_v3Center);
+	m_pRigidBody = new MyRigidBody(v3MaxMin_list);
 }
 
 //The big 3
-Octant2::Octant2(){Init();}
+Octant2::Octant2()
+{
+	Init();
+	dimension = 1;
+	level = 1;
+	m_pMeshMngr = MeshManager::GetInstance();
+	m_pEntityMngr = MyEntityManager::GetInstance();
+
+	typedef MyEntity* PEntity; //MyEntity Pointer
+	PEntity* entity_Array = m_pEntityMngr->GetEntityArray();
+
+	uint iEntityCount = m_pEntityMngr->GetEntityCount();
+	std::vector<vector3> v3MaxMin_list;
+	for (uint i = 0; i < iEntityCount; ++i)
+	{
+		MyRigidBody* pRG = entity_Array[i]->GetRigidBody();
+		vector3 v3Min = pRG->GetMinGlobal();
+		vector3 v3Max = pRG->GetMaxGlobal();
+		v3MaxMin_list.push_back(v3Min);
+		v3MaxMin_list.push_back(v3Max);
+	}
+	for (uint i = 0; i < 8; i++)
+	{
+		m_pChild[i] = nullptr;
+	}
+	m_pRigidBody = new MyRigidBody(v3MaxMin_list);
+	m_pRigidBody->MakeCubic();
+}
 Octant2::Octant2(Octant2 const& other)
 {
 	m_nData = other.m_nData;

@@ -14,8 +14,10 @@ namespace Simplex
 	class Octant2
 	{
 		int m_nData = 0; //Number of elements in the list of elements
-		int dimension;
-		int level;
+		long dimension; // what dimension the octant assigns to entities in it
+		int level; // the level in the octree the octant is
+		int maxLevels = 1; // the maximum number of times the octree can be subdivided
+
 		std::vector<int> m_lData; //list of elements
 		MeshManager* m_pMeshMngr = nullptr; //Pointer to Mesh manager
 		MyEntityManager* m_pEntityMngr = nullptr;
@@ -23,12 +25,42 @@ namespace Simplex
 		Octant2* m_pParent = nullptr;
 		Octant2* m_pChild[8];
 	public:
+		/*
+		Usage: Displays the octants
+		Arguments: ---
+		Output: ---
+		*/
 		void Display(void);
+		/*
+		Usage: Creates the 8 children octants, subdividing the original space
+		Arguments: ---
+		Output: ---
+		*/
 		void Subdivide(void);
+		/*
+		Usage: Recursively assigns dimensions to entities, starting from root
+		Arguments: ---
+		Output: ---
+		*/
 		void CalcTree(void);
+		/*
+		Usage: Recursively assigns dimensions to entities 
+		Arguments: List of possible colliding entities from parent octant
+		Output: ---
+		*/
 		void CalcTree(std::vector<MyEntity*> colEntities);
-
-		Octant2(/*vector3 m_v3Size*/ int dim, int lev);
+		/*
+		Usage: Sets maxLevels attribute
+		Arguments: New max level
+		Output: ---
+		*/
+		void SetMaxLevels(int ml);
+		/*
+		Usage: Constructor for creating suboctants
+		Arguments: center and size of suboctant
+		Output: class object instance
+		*/
+		Octant2(vector3 center, float size);
 		/*
 		Usage: Constructor
 		Arguments: ---

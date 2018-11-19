@@ -277,59 +277,39 @@ void MyRigidBody::ClearCollidingList(void)
 }
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
-	/*
-	Your code goes here instead of this comment;
-
-	For this method, if there is an axis that separates the two objects
-	then the return will be different than 0; 1 for any separating axis
-	is ok if you are not going for the extra credit, if you could not
-	find a separating axis you need to return 0, there is an enum in
-	Simplex that might help you [eSATResults] feel free to use it.
-	(eSATResults::SAT_NONE has a value of 0)
-	*/
-
-	//there is no axis test that separates this two objects
+	// copy pasting previous SAT code doesn't work for some reason, so going without it
 	return 0;
 }
 bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 {
-	//check if spheres are colliding
 	bool bColliding = true;
-	//bColliding = (glm::distance(GetCenterGlobal(), other->GetCenterGlobal()) < m_fRadius + other->m_fRadius);
-	//if they are check the Axis Aligned Bounding Box
-	if (bColliding) //they are colliding with bounding sphere
+
+	if (this->m_v3MaxG.x < a_pOther->m_v3MinG.x) //this to the right of other
+		bColliding = false;
+	if (this->m_v3MinG.x > a_pOther->m_v3MaxG.x) //this to the left of other
+		bColliding = false;
+
+	if (this->m_v3MaxG.y < a_pOther->m_v3MinG.y) //this below of other
+		bColliding = false;
+	if (this->m_v3MinG.y > a_pOther->m_v3MaxG.y) //this above of other
+		bColliding = false;
+
+	if (this->m_v3MaxG.z < a_pOther->m_v3MinG.z) //this behind of other
+		bColliding = false;
+	if (this->m_v3MinG.z > a_pOther->m_v3MaxG.z) //this in front of other
+		bColliding = false;
+
+	if (bColliding) //they are colliding with bounding box also
 	{
-		if (this->m_v3MaxG.x < a_pOther->m_v3MinG.x) //this to the right of other
-			bColliding = false;
-		if (this->m_v3MinG.x > a_pOther->m_v3MaxG.x) //this to the left of other
-			bColliding = false;
-
-		if (this->m_v3MaxG.y < a_pOther->m_v3MinG.y) //this below of other
-			bColliding = false;
-		if (this->m_v3MinG.y > a_pOther->m_v3MaxG.y) //this above of other
-			bColliding = false;
-
-		if (this->m_v3MaxG.z < a_pOther->m_v3MinG.z) //this behind of other
-			bColliding = false;
-		if (this->m_v3MinG.z > a_pOther->m_v3MaxG.z) //this in front of other
-			bColliding = false;
-
-		if (bColliding) //they are colliding with bounding box also
-		{
-			this->AddCollisionWith(a_pOther);
-			a_pOther->AddCollisionWith(this);
-		}
-		else //they are not colliding with bounding box
-		{
-			this->RemoveCollisionWith(a_pOther);
-			a_pOther->RemoveCollisionWith(this);
-		}
+		this->AddCollisionWith(a_pOther);
+		a_pOther->AddCollisionWith(this);
 	}
-	else //they are not colliding with bounding sphere
+	else //they are not colliding with bounding box
 	{
 		this->RemoveCollisionWith(a_pOther);
 		a_pOther->RemoveCollisionWith(this);
 	}
+
 	return bColliding;
 }
 
@@ -366,4 +346,14 @@ bool MyRigidBody::IsInCollidingArray(MyRigidBody* a_pEntry)
 			return true;
 	}
 	return false;
+}
+
+void Simplex::MyRigidBody::MakeCubic(void)
+{
+	float fSize = m_v3HalfWidth.x;
+	fSize = glm::max(fSize, m_v3HalfWidth.y);
+	fSize = glm::max(fSize, m_v3HalfWidth.z);
+	m_v3HalfWidth = vector3(fSize);
+	m_v3MinL = m_v3MinG = m_v3CenterL - m_v3HalfWidth;
+	m_v3MaxL = m_v3MaxG = m_v3CenterL + m_v3HalfWidth;
 }
